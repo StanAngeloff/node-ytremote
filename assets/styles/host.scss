@@ -1,0 +1,13 @@
+@import 'compass';
+
+@include global-reset;
+
+$background-color: #000;
+
+html { background-color: $background-color; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
