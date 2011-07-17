@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang=en class=ui-splash>
+<head>
+  <meta charset=utf-8>
+  <title>YTRemote</title>
+
+  <meta name=viewport content="width=device-width, minimum-scale=1, maximum-scale=1, initial-scale=1">
+
+  <meta name=apple-mobile-web-app-capable content=yes>
+  <meta name=apple-mobile-web-app-status-bar-style content=black>
+
+  <link rel="shortcut icon" href=favicon.ico>
+
+  <link rel=stylesheet href=styles/zoey.css>
+  <link rel=stylesheet href=styles/remote.css>
+</head>
+<body>
+
+<article id=authorise data-role=page>
+  <header data-role=header data-theme=a>
+    <h1 data-role=page-title>YTRemote</h1>
+  </header>
+  <div data-role=content>
+    <div data-role=panel data-theme=d>
+      <p>Thank you for using YTRemote. Please authorise the app with YouTube before you can continue.</p>
+      <p>
+        <a id=button-authorise rel=external data-role=button data-theme=b data-icon=arrow-r data-icon-position=right>Authorise</a>
+      </p>
+    </div>
+  </div>
+</article>
+
+<article id=unwatched data-role=page>
+  <header data-role=header data-theme=a>
+    <h1 data-role=page-title>YTRemote</h1>
+  </header>
+  <div data-role=content data-theme=d>
+    <h2>Unwatched</h2>
+    <p class=loading>Loading videos&hellip;</p>
+    <ol id=list-unwatched class=ui-collapsed></ol>
+    <script id=template-unwatched type=text/template>
+      <li data-icon=arrow-r data-icon-position=right>
+        <a href="{{href}}" rel=external data-role=button>
+          <img class=thumbnail src="{{thumbnail}}">
+          <h2 class=title>{{title}}</h2>
+          <strong class=user>{{user}}</strong>
+          <span class=time>{{time}}</span>
+        </a>
+      </li>
+    </script>
+  </div>
+</article>
+
+<article id=player data-role=page>
+  <header class=has-back-button data-role=header data-theme=a>
+    <a data-role=button data-rel=back data-theme=a data-icon=arrow-l>Back</a>
+    <h1 data-role=page-title>YTRemote</h1>
+  </header>
+  <div data-role=content>
+    <div data-role=panel data-theme=d>
+      <p><a id=button-play-pause rel=external data-role=button data-theme=b></a></p>
+      <div id=player-volume></div>
+    </div>
+  </div>
+</article>
+
+<article id=exception data-role=page>
+  <header class=has-back-button data-role=header data-theme=a>
+    <a data-role=button data-rel=back data-theme=a data-icon=arrow-l>Back</a>
+    <h1 data-role=page-title>YTRemote</h1>
+  </header>
+  <div data-role=content>
+    <div data-role=panel data-theme=e>
+      <h2>Whoops!</h2>
+      <p id=exception-message></p>
+    </div>
+  </div>
+</article>
+
+<script src=socket.io/socket.io.js></script>
+<script src=scripts/date.js></script>
+<script src=scripts/zoey.js></script>
+<script src=scripts/remote.js></script>
+
+<script>
+$(document).ready(function() {
+  YTRemote.initialize();
+});
+</script>
+
+</body>
+</html>
