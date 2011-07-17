@@ -5,6 +5,7 @@ var http        = require('http'),
     path        = require('path'),
     querystring = require('querystring'),
     colorize    = require('colorize'),
+    io          = require('socket.io'),
     paperboy    = require('paperboy');
 
 const SERVER_PORT = 3000;
@@ -12,7 +13,7 @@ const SERVER_ROOT = path.join(__dirname, 'public');
 
 var domains = ['www.google.com', 'gdata.youtube.com'];
 
-http.createServer(function(request, response) {
+var server = http.createServer(function(request, response) {
   paperboy.
     deliver(SERVER_ROOT, request, response).
     otherwise(function() {
@@ -55,6 +56,23 @@ http.createServer(function(request, response) {
         response.end("Proxy failed, domain '" + host + "' not allowed.");
       }
     });
-}).listen(SERVER_PORT);
+});
 
-console.log(colorize.ansify('#yellow[Listening on port #bold[' + SERVER_PORT + ']... Press Ctrl+C to exit.]'));
+server.listen(SERVER_PORT);
+
+console.log(colorize.ansify('   #cyan[info  - ]listening on port #bold[' + SERVER_PORT + ']'));
+console.log(colorize.ansify('   #cyan[info  - ]press Ctrl+C to exit]'));
+
+var events = ['play', 'volume'];
+
+var socket = io.listen(server);
+
+socket.on('connection', function(client) {
+  for (var i = 0; i < events.length; i ++) {
+    (function(event) {
+      client.on(event, function() {
+        client.broadcast.emit.apply(client.broadcast, Array.prototype.slice.call(arguments));
+      });
+    })(events[i]);
+  }
+});

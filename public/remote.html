@@ -30,19 +30,6 @@
   </div>
 </article>
 
-<article id=exception data-role=page>
-  <header data-role=header data-theme=a>
-    <a href=#authorise data-role=button data-rel=back data-theme=a data-icon=arrow-l>Back</a>
-    <h1 data-role=page-title>YTRemote</h1>
-  </header>
-  <div data-role=content>
-    <div data-role=panel data-theme=e>
-      <h2>Whoops!</h2>
-      <p id=exception-message></p>
-    </div>
-  </div>
-</article>
-
 <article id=unwatched data-role=page>
   <header data-role=header data-theme=a>
     <h1 data-role=page-title>YTRemote</h1>
@@ -64,9 +51,24 @@
   </div>
 </article>
 
+<article id=exception data-role=page>
+  <header data-role=header data-theme=a>
+    <a href=#authorise data-role=button data-rel=back data-theme=a data-icon=arrow-l>Back</a>
+    <h1 data-role=page-title>YTRemote</h1>
+  </header>
+  <div data-role=content>
+    <div data-role=panel data-theme=e>
+      <h2>Whoops!</h2>
+      <p id=exception-message></p>
+    </div>
+  </div>
+</article>
+
+<script src=socket.io/socket.io.js></script>
 <script src=scripts/date.js></script>
 <script src=scripts/zoey.js></script>
 <script src=scripts/remote.js></script>
+
 <script>
 $(document).ready(function() {
   YTRemote.initialize();

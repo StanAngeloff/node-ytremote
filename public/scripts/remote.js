@@ -5,25 +5,27 @@ $.fn.value = function fn_value() {
   var klass = this;
   this.initialize = function initialize() {
     this.authoriseIfTokenPresent();
-    $('#button-authorise').bind('click', function(event) {
-      event.preventDefault();
-      klass.authorise();
-    });
+    if (this.token()) {
+      $('#authorise').remove();
+    } else {
+      $('#button-authorise').bind('click', function(event) {
+        event.preventDefault();
+        klass.authorise();
+      });
+    }
     $(document.body).delegate('[data-role="page"]', 'pageshow', function() {
       if (this.id === 'unwatched') {
         klass.loadUnwatched($(this));
       }
     });
-    if (this.token() && ! location.hash) {
-      Z.changePage({ target: 'unwatched' });
-    }
+    Z.initialize();
   };
   this.uri = function uri(file) {
     return location.href.split('/').slice(0, 3).join('/') + '/' + (file || '');
   };
   this.exception = function exception(message) {
     $('#exception-message').html(message);
-    Z.changePage({ target: 'exception' });
+    location.hash = 'exception';
   };
   this.token = function token(value) {
     var key = 'YTRemote:token';
@@ -86,6 +88,30 @@ $.fn.value = function fn_value() {
     $form.get(0).submit();
     Z.loading(true);
   };
+  this.broadcast = function connect() {
+    var args  = Array.prototype.slice.call(arguments),
+        block = args.pop();
+    if ( ! this.socket) {
+      this.socket = io.connect(this.uri());
+      this.socket.once('connect', function() {
+        this.emit.apply(this, args);
+        block();
+      });
+      this.socket.on('error', function(message) {
+        this.removeAllListeners('connect');
+        klass.exception('Socket exception: ' + (message || 'failed to connect to the server.'));
+      });
+    } else if ( ! this.socket.connected) {
+      this.socket.socket.connect();
+      this.socket.once('connect', function() {
+        this.emit.apply(this, args);
+        block();
+      });
+    } else {
+      this.socket.emit.apply(this.socket, args);
+      block();
+    }
+  };
   this.load = function load(endpoint, block) {
     Z.loading(true);
     $.ajax({
@@ -106,6 +132,10 @@ $.fn.value = function fn_value() {
     });
   };
   this.loadUnwatched = function loadUnwatched($page) {
+    if (this.loadingUnwatched) {
+      return true;
+    }
+    this.loadingUnwatched = true;
     this.load('feeds/api/users/default/newsubscriptionvideos', function(feed) {
       var template   = $('#template-unwatched').html(),
           $unwatched = $('#list-unwatched'),
@@ -121,10 +151,13 @@ $.fn.value = function fn_value() {
       }
       $unwatched.delegate('a', 'click', function(event) {
         event.preventDefault();
-        alert('TODO: ' + this.href);
+        klass.broadcast('play', this.href, function() {
+          // TODO:
+        });
       });
       $page.find('.loading').remove();
       Z.role($unwatched.removeClass('ui-collapsed'), 'list');
     });
   };
+  Z.preventInitialize = true;
 }).apply(this.YTRemote = {}, [this.Zepto, this.Zoey]);
