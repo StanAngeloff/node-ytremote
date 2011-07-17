@@ -63,7 +63,7 @@ server.listen(SERVER_PORT);
 console.log(colorize.ansify('   #cyan[info  - ]listening on port #bold[' + SERVER_PORT + ']'));
 console.log(colorize.ansify('   #cyan[info  - ]press Ctrl+C to exit]'));
 
-var events = ['play', 'pause', 'toggle', 'options', 'progress'];
+var events = ['play', 'pause', 'toggle', 'options', 'progress', 'volume'];
 
 var io = io.listen(server);
 

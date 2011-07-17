@@ -25,7 +25,7 @@ this.onYouTubeStateChange = function(state) {
     __yt_remote = this;
   };
   this.uri = function uri(file) {
-    return location.href.split('/').slice(0, -1).join('/') + '/' + (file || '');
+    return location.href.split('/').slice(0, 3).join('/') + '/' + (file || '');
   };
   this.getVideoId = function getVideoId(url) {
     var group = /v=([^&]+)/.exec(url);
@@ -48,11 +48,7 @@ this.onYouTubeStateChange = function(state) {
         }
       } else {
         klass.player.playVideo();
-        klass.socket.emit('options', {
-          volume:                 klass.player.getVolume(),
-          playbackQuality:        klass.player.getPlaybackQuality(),
-          availableQualityLevels: klass.player.getAvailableQualityLevels()
-        });
+        klass.emitOptions();
       }
     });
     this.socket.on('pause', function() {
@@ -67,6 +63,17 @@ this.onYouTubeStateChange = function(state) {
       } else {
         klass.socket.emit('play');
       }
+    });
+    this.socket.on('volume', function(volume) {
+      klass.player.setVolume(volume);
+      klass.emitOptions();
+    });
+  };
+  this.emitOptions = function emitOptions() {
+    this.socket.emit('options', {
+      volume:                 this.player.getVolume(),
+      playbackQuality:        this.player.getPlaybackQuality(),
+      availableQualityLevels: this.player.getAvailableQualityLevels()
     });
   };
   this.createPlayer = function createPlayer() {
@@ -92,10 +99,12 @@ this.onYouTubeStateChange = function(state) {
       klass.player.addEventListener('onStateChange', 'onYouTubeStateChange');
     });
     setInterval(function() {
-      klass.socket.emit('progress', {
-        duration: klass.player.getDuration(),
-        time:     klass.player.getCurrentTime()
-      });
+      if (klass.player) {
+        klass.socket.emit('progress', {
+          duration: klass.player.getDuration(),
+          time:     klass.player.getCurrentTime()
+        });
+      }
     }, PROGRESS_INTERVAL);
   };
 }).apply(this.YTRemote = {}, [this.jQuery]);

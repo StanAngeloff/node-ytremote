@@ -31,7 +31,7 @@ $.fn.value = function fn_value() {
     });
   };
   this.uri = function uri(file) {
-    return location.href.split('/').slice(0, -1).join('/') + '/' + (file || '');
+    return location.href.split('/').slice(0, 3).join('/') + '/' + (file || '');
   };
   this.restart = function restart() {
     location.replace(this.uri('remote.html'));
@@ -58,7 +58,8 @@ $.fn.value = function fn_value() {
       options[parts[0]] = parts[1];
     }
     if ( ! options.token) {
-      return this.exception('Authorisation failed, no token was returned by Google.');
+      this.exception('Authorisation failed, no token was returned by Google.');
+      return false;
     }
     var self = this;
     Z.loading(true);
@@ -77,12 +78,14 @@ $.fn.value = function fn_value() {
         }
         if ( ! options.Token) {
           Z.loading(false);
-          return klass.exception('Authorisation failed, no token was returned by Google.');
+          klass.exception('Authorisation failed, no token was returned by Google.');
+          return false;
         }
         klass.token(options.Token);
         klass.restart();
       },
       error: function(xhr, type) {
+        alert(1);
         Z.loading(false);
         klass.exception('Authorisation failed, Google returned ' + xhr.status + ' ' + xhr.statusText + ': ' + xhr.responseText);
       }
@@ -121,7 +124,16 @@ $.fn.value = function fn_value() {
       $('#button-play-pause').html('&#x25A0;');
     });
     socket.on('options', function(options) {
-      // TODO: state notification
+      if (options.volume) {
+        $('#player-volume').children().each(function() {
+          var $this = $(this);
+          if (parseInt($this.data('volume')) > options.volume) {
+            $this.removeClass('on').addClass('off');
+          } else {
+            $this.removeClass('off').addClass('on');
+          }
+        });
+      }
     });
     socket.on('progress', function(options) {
       // TODO: state notification
@@ -156,14 +168,15 @@ $.fn.value = function fn_value() {
       var template   = $('#template-unwatched').html(),
           $unwatched = $('#list-unwatched'),
           entries    = feed.getElementsByTagNameNS('http://www.w3.org/2005/Atom', 'entry');
-      for (var i = 0, video, href, cache, html; video = $(entries[i]), i < entries.length; i ++) {
+      for (var i = 0, video, href, date, cache, html; video = $(entries[i]), i < entries.length; i ++) {
         href  = video.find('link[rel="alternate"][type="text/html"]').attr('href');
+        date  = video.find('published').value().replace('T', ' ').split('.').shift().split(/[- :]/);
         cache = {
           href:      href,
           title:     video.find('title[type="text"]').value(),
           thumbnail: video.find('group thumbnail[width="120"]').first().attr('url'),
           user:      video.find('author name').value(),
-          time:      Date.relative(new Date(Date.parse(video.find('published').value().replace('T', ' ').split('.').shift())))
+          time:      Date.relative(new Date(date[0], date[1] - 1, date[2], date[3], date[4], date[5]))
         };
         html = template;
         for (var key in cache) {
@@ -176,22 +189,39 @@ $.fn.value = function fn_value() {
       }
       $unwatched.delegate('a', 'click', function(event) {
         event.preventDefault();
-        // TODO: klass.emit('play', this.href);
-        klass.emit('play', 'http://www.youtube.com/watch?v=yjFFljF527w&feature=youtube_gdata');
+        klass.emit('play', this.href);
       });
       $page.find('.loading').remove();
       Z.role($unwatched.removeClass('ui-collapsed'), 'list');
     });
   };
   this.loadVideo = function loadVideo($page, href) {
-    if ( ! href && ! this.lastVideo) {
+    if ( ! href && ! this.playingVideo) {
       klass.restart();
       return false;
     }
-    if (href && href !== this.lastVideo) {
-      // TODO: set title, name, etc.
-      this.lastVideo = href;
+    if ( ! this.loadingVideo) {
+      this.loadingVideo = true;
+      var $volume = $('#player-volume'), previousVolume = null;
+      for (var volume = 0, step = 5; volume <= 100; volume += step) {
+        $volume.append($('<span>').data('volume', volume).css({ width: (step / 100) + '%' }).addClass('volume-step off'));
+      }
+      $(document).bind('mousemove touchmove', function(event) {
+        if (event.target && ~event.target.className.indexOf('volume-step')) {
+          var volume = parseInt($(event.target).data('volume'));
+          event.preventDefault();
+          event.stopPropagation();
+          if (previousVolume !== volume) {
+            klass.emit('volume', volume);
+            previousVolume = volume;
+            setTimeout(function() {
+              previousVolume = null;
+            }, 1000);
+          }
+        }
+      });
     }
+    this.playingVideo = href;
     location.hash = 'player';
   };
   Z.preventInitialize = true;
