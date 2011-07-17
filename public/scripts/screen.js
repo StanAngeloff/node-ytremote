@@ -27,15 +27,24 @@ this.onYouTubeStateChange = function(state) {
   this.uri = function uri(file) {
     return location.href.split('/').slice(0, -1).join('/') + '/' + (file || '');
   };
+  this.getVideoId = function getVideoId(url) {
+    var group = /v=([^&]+)/.exec(url);
+    return group && group[1];
+  };
   this.connect = function connect() {
     this.socket = io.connect(this.uri());
     this.socket.on('play', function(href) {
       if (href) {
-        klass.player.stopVideo();
-        var videoId = /v=([^&]+)/.exec(href)[1];
-        if (videoId) {
-          klass.player.loadVideoById(videoId);
+        var previousId = klass.getVideoId(klass.player.getVideoUrl()),
+            videoId    = klass.getVideoId(href);
+        if (previousId === videoId) {
           klass.player.playVideo();
+        } else {
+          klass.player.stopVideo();
+          if (videoId) {
+            klass.player.loadVideoById(videoId);
+            klass.player.playVideo();
+          }
         }
       } else {
         klass.player.playVideo();
@@ -51,6 +60,13 @@ this.onYouTubeStateChange = function(state) {
     });
     this.socket.on('stop', function() {
       klass.player.stopVideo();
+    });
+    this.socket.on('toggle', function() {
+      if (klass.player.getPlayerState() === 1) {
+        klass.socket.emit('pause');
+      } else {
+        klass.socket.emit('play');
+      }
     });
   };
   this.createPlayer = function createPlayer() {

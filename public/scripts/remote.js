@@ -8,6 +8,10 @@ $.fn.value = function fn_value() {
     this.authoriseIfTokenPresent();
     if (this.token()) {
       $('#authorise').remove();
+      $('#button-play-pause').bind('click', function(event) {
+        event.preventDefault();
+        klass.emit('toggle');
+      });
     } else {
       $('#button-authorise').bind('click', function(event) {
         event.preventDefault();
@@ -102,21 +106,19 @@ $.fn.value = function fn_value() {
       this.socket = this.connect(io.connect(this.uri()));
     }
     this.socket.emit.apply(this.socket, Array.prototype.slice.call(arguments));
-    block();
   };
   this.connect = function connect(socket) {
     socket.on('play', function(href) {
+      $('#button-play-pause').text('||');
       if (href) {
         klass.loadVideo($('#player'), href);
-      } else {
-        // TODO: state notification
       }
     });
     socket.on('pause', function() {
-      // TODO: state notification
+      $('#button-play-pause').html('&#x25B6;');
     });
     socket.on('stop', function() {
-      // TODO: state notification
+      $('#button-play-pause').html('&#x25A0;');
     });
     socket.on('options', function(options) {
       // TODO: state notification
