@@ -63,15 +63,15 @@ server.listen(SERVER_PORT);
 console.log(colorize.ansify('   #cyan[info  - ]listening on port #bold[' + SERVER_PORT + ']'));
 console.log(colorize.ansify('   #cyan[info  - ]press Ctrl+C to exit]'));
 
-var events = ['play', 'volume'];
+var events = ['play', 'pause', 'options', 'progress'];
 
-var socket = io.listen(server);
+var io = io.listen(server);
 
-socket.on('connection', function(client) {
+io.sockets.on('connection', function(client) {
   for (var i = 0; i < events.length; i ++) {
     (function(event) {
       client.on(event, function() {
-        client.broadcast.emit.apply(client.broadcast, Array.prototype.slice.call(arguments));
+        client.namespace.emit.apply(client.namespace, [event].concat(Array.prototype.slice.call(arguments)));
       });
     })(events[i]);
   }

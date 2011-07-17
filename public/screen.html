@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang=en class=ui-splash>
+<head>
+  <meta charset=utf-8>
+  <title>YTRemote</title>
+
+  <link rel="shortcut icon" href=favicon.ico>
+
+  <link rel=stylesheet href=styles/screen.css>
+</head>
+<body>
+
+<div id=player></div>
+
+<script src=//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js></script>
+<script src=socket.io/socket.io.js></script>
+<script src=scripts/screen.js></script>
+
+<script>
+$(document).ready(function() {
+  YTRemote.initialize();
+});
+</script>
+
+</body>
+</html>

@@ -1,3 +1,5 @@
+.has-back-button .ui-page-title { padding-top: 0.85em; }
+
 .loading { text-align: center; }
 
 #list-unwatched > .ui-button:first-child { border-top: 1px solid rgba(0, 0, 0, 0.25); }
