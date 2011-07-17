@@ -10,7 +10,7 @@ var http        = require('http'),
 const SERVER_PORT = 3000;
 const SERVER_ROOT = path.join(__dirname, 'public');
 
-var domains = ['google.com'];
+var domains = ['www.google.com', 'gdata.youtube.com'];
 
 http.createServer(function(request, response) {
   paperboy.
