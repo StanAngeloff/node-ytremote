@@ -1,0 +1,3 @@
+[submodule "vendor/zoey"]
+	path = vendor/zoey
+	url = git://github.com/StanAngeloff/zoey.git

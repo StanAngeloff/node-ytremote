@@ -1,0 +1,14 @@
+{
+  "name":        "node-YTRemote",
+  "description": "Get lazy, watch YouTube on the PC using your mobile device as a remote control.",
+  "version":     "0.2.0",
+  "author":      "Stan Angeloff <stanimir@angeloff.name> (http://blog.angeloff.name)",
+  "dependencies": {
+    "socket.io":  "~> 0.7",
+    "paperboy":   " > 0.0",
+    "colorize":   "~> 0.1"
+  },
+  "engines": {
+    "node": ">= 0.4.5"
+  }
+}
