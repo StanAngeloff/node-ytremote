@@ -136,7 +136,7 @@ $.fn.value = function fn_value() {
       }
     });
     socket.on('progress', function(options) {
-      // TODO: state notification
+      // TODO: update video progress
     });
     return socket;
   };

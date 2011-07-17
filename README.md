@@ -1,5 +1,5 @@
-node-YTRemote
-=============
+YTRemote
+========
 
 Get lazy, watch YouTube on the PC using your mobile device as a remote control.
 
